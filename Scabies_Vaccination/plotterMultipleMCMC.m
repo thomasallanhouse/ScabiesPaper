@@ -1,0 +1,73 @@
+
+% Script plots the results of the mcmc runs from the scabies model
+% Written by Tim Kinyanjui on the 17th of Oct 2015
+% University of Manchester
+
+% Prepare the workspace
+%close all; 
+clearvars
+
+% Load the data
+load results090616.mat
+
+% Burn-in and thin
+burnin = 1000;
+thin = 15;
+chainBB = chainB(burnin:thin:end,1,:); chainBB = chainBB(:);
+chainA = chainB(burnin:thin:end,2,:); chainA = chainA(:);
+chainG = chainB(burnin:thin:end,3,:); chainG = chainG(:);
+chainLL = chain_ll(burnin:thin:end,:); chainLL = chainLL(:);
+
+% Figure to show convergence and mixing of chains
+figure; set(gcf,'WindowStyle','docked')
+subtightplot(3,1,1,[0.05 0.1])
+plot(1:length(chainBB),chainBB)
+hold on
+%plot([0 length(chainTime)],[0.0047 0.0047],'r')
+ylabel('\beta'); set(gca,'XTickLabel',''); box off
+
+subtightplot(3,1,2,[0.05 0.1])
+plot(1:length(chainBB),chainA)
+hold on
+%plot([0 length(chainTime)],[0.663 0.663],'r')
+ylabel('\alpha'); set(gca,'XTickLabel','','YTick',0:0.25:1); box off
+
+subtightplot(3,1,3,[0.05 0.1])
+plot(1:length(chainBB),chainG)
+hold on
+%plot([0 length(chainTime)],[1/3.0608 1/3.0608],'r')
+ylabel('\gamma'); xlabel('Chain length'); box off
+
+% Marginals
+figure; set(gcf,'WindowStyle','Docked')
+
+subtightplot(3,3,1,[0.05 0.03],[0.1 0.05],0.055)
+histogram(chainBB,20,'Normalization','probability')
+box off
+
+subtightplot(3,3,4,[0.05 0.03],[0.1 0.05],0.055)
+scatter(chainBB,chainA,4,(chainLL),'o','filled')
+box off; ylabel('\alpha'); %colormap jet
+
+subtightplot(3,3,5,[0.05 0.03],[0.1 0.05],0.055)
+histogram(chainA,20,'Normalization','probability')
+box off; %colormap jet; 
+
+subtightplot(3,3,7,[0.05 0.03],[0.1 0.05],0.05)
+scatter(chainBB,chainG,4,(chainLL),'o','filled')
+box off; xlabel('\beta'); ylabel('\gamma'); %colormap jet;
+
+subtightplot(3,3,8,[0.05 0.03],[0.1 0.05],0.05)
+scatter(chainA,chainG,4,(chainLL),'o','filled')
+box off; xlabel('\alpha'); %colormap jet
+
+subtightplot(3,3,9,[0.05 0.03],[0.1 0.05],0.05)
+%hist(chainG,16)
+histogram(chainG,20,'Normalization','probability')
+box off; xlabel('\gamma'); %colormap jet
+
+% 3D scatter plot
+figure; set(gcf,'WindowStyle','Docked')
+scatter3(chainBB,chainA,chainG,6,exp(chainLL),'o','filled')
+colorbar; %colormap jet
+xlabel('\beta'); ylabel('\alpha'); zlabel('\gamma')
